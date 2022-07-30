@@ -1,23 +1,15 @@
 package pl.coderslab;
 
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+@Component
 public class MockBookService implements BookService {
-    private List<Book> books;
     private static Long nextId = 4L;
-
-    @Override
-    public List<Book> getBooks() {
-        new MockBookService();
-        return books;
-    }
-
-    @Override
-    public void add(Book book) {
-        book.setId(nextId++);
-        books.add(book);
-    }
+    private List<Book> books;
 
     public MockBookService() {
         books = new ArrayList<>();
@@ -28,10 +20,6 @@ public class MockBookService implements BookService {
                 "programming"));
     }
 
-    public void setBooks(List<Book> books) {
-        this.books = books;
-    }
-
     public static Long getNextId() {
         return nextId;
     }
@@ -39,4 +27,40 @@ public class MockBookService implements BookService {
     public static void setNextId(Long nextId) {
         MockBookService.nextId = nextId;
     }
+
+    @Override
+    public List<Book> getBooks() {
+        new MockBookService();
+        return books;
+    }
+
+    public void setBooks(List<Book> books) {
+        this.books = books;
+    }
+
+    @Override
+    public void add(Book book) {
+        book.setId(nextId++);
+        books.add(book);
+    }
+
+    @Override
+    public Optional<Book> get(Long id) {
+        return books.stream().filter(item -> item.getId().equals(id)).findFirst();
+    }
+
+    @Override
+    public void delete(Long id) {
+        if (get(id).isPresent()) {
+            books.remove(this.get(id).get());
+        }
+    }
+    @Override
+    public void update(Book book) {
+        if (this.get(book.getId()).isPresent()) {
+            int indexOf = books.indexOf(this.get(book.getId()).get());
+            books.set(indexOf, book);
+        }
+    }
+
 }
